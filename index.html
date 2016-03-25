@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js – The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Mesos-Marathon cloud</h1>
+					<h3>make yourself</h3>
+					<p>
+						<small>Jan Seidl &lt;seidl@avast.com&gt;, VirusLab Systems</small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Docker?</h2>
+
+					<aside class="notes">
+            * jak jsem docker nechtel
+            * proc se mi zalibil (pinto)
+            * jenze, pak jsem zacal chtit nejaky cloud do ktere ho to dam 
+					</aside>
+				</section>
+
+				<section>
+					<section>
+						<h2>Cloud?</h2>
+					</section>
+					<section>
+						<h2>Cloud of docker tooling</h2>
+							<img data-src="img/tag_cloud.png" alt="tag cloud">
+					</section>
+					<section>
+						<h2>Cloud of docker orchestration tooling</h2>
+							<img data-src="img/tag_cloud_orchestr.png" alt="orchestration tag cloud">
+					</section>
+					<section>
+						<h2>Cloud?</h2>
+            <p>
+              mesos-marathon / kubernetes (beta) / helios
+            </p>
+
+					  <aside class="notes">
+              * kubernetes - v bete, nedoporucovali na produkci
+              * mesos byl stable, ale marathon byl takovy nedotazeny - GUIcko neumelo prakticky nic, ale API fajn
+              * swarm byl jen ve zminkach
+              * helios byl slozity (ale mocny), doporucovali jen kdyz si clovek nevystavi s ostatnimi
+					  </aside>
+					</section>
+				</section>
+
+				<section>
+					<h2>Mesos-Marathon cloud</h2>
+				</section>
+
+				<section>
+					<section>
+						<h2>mmcloud v1</h2>
+					  <p>
+					  	<small>1+2 (2nody)</small>
+					    <ul>
+					    	<li>mesos</li>
+					    	<li>marathon</li>
+					    	<li>(zookeeper)</li>
+					    	<li>haproxy</li>
+                <li>ha-proxy bridge (cron)</li>
+					    </ul>
+					  </p>
+
+					  <aside class="notes">
+              haproxy-bridge v cronu, kazdou minutu
+              + tcp
+              - pooling kazdou minutu
+              - pristup pres porty, ktere jsou automaticky prirazeny, nebo se priradi rucne 
+					  </aside>
+					</section>
+          <section>
+  					<ul>
+              <h4>plus</h4>
+					    <ul>
+					    	<li>tcp/udp applications</li>
+					    </ul>
+              <h4>minus</h4>
+					    <ul>
+					    	<li>pooling</li>
+                <li>adressing via ports</li>
+					    </ul>
+					  </ul>
+          </section>
+        </section>
+
+        <section>
+					<section>
+						<h2>mmcloud v2</h2>
+					  <p>
+					  	<small>1+3 (3nody)</small>
+					    <ul>
+					    	<li>mesos</li>
+					    	<li>marathon</li>
+					    	<li>(zookeeper)</li>
+					    	<li>consul</li>
+                <li>consul-template</li>
+                <li>web-proxy (lighttpd)</li>
+                <li>bind</li>
+                <li>registrator</li>
+					    </ul>
+					  </p>
+
+					  <aside class="notes">
+              consul - service discovery
+              consul-template generuje konfiguraci web-proxy pri zmene v consulu
+              web-proxy dela reverse proxy k HTTP aplikacim
+              bind pro zpropagovani consul DNS API
+              registrator populuje consul
+					  </aside>
+					</section>
+          <section>
+  					<ul>
+              <h4>plus</h4>
+					    <ul>
+					    	<li>immediately propagation</li>
+					    	<li>HTTP/DNS API for service discovery</li>
+					    </ul>
+              <h4>minus</h4>
+					    <ul>
+					    	<li>registrator must be installed on each node</li>
+                <li>registrator use docker name (collision with mesos/marathon id)</li>
+                <li>only HTTP application</li>
+					    </ul>
+					  </ul>
+          </section>
+        </section>
+
+        <section>
+					<section>
+						<h2>mmcloud v3 (current)</h2>
+					  <p>
+					  	<small>3+5 (5nody), HA</small>
+					    <ul>
+					    	<li>mesos</li>
+					    	<li>marathon</li>
+					    	<li>(zookeeper)</li>
+					    	<li>consul</li>
+                <li>consul-template</li>
+                <li>web-proxy (lighttpd)</li>
+                <li>bind</li>
+                <li>mesos-marathon bridge</li>
+                <li>logstash</li>
+					    </ul>
+					  </p>
+					</section>
+          <section>
+  					<ul>
+              <h4>plus</h4>
+					    <ul>
+					    	<li>immediately propagation</li>
+					    	<li>HTTP/DNS API for service discovery</li>
+                <li>name is name of mesos/marathon id</li>
+                <li>one instance of mesos-marathon bridge in cloud</li>
+					    </ul>
+              <h4>minus</h4>
+					    <ul>
+                <li>only HTTP application</li>
+                <li>multiport application problem</li>
+					    </ul>
+					  </ul>
+          </section>
+					<section>
+            <h3>HA</h3>
+            <ul>
+                VRRP
+                <ul>
+                    <li>keepalived</li>
+                    <li>piranha (RedHat)</li>
+                    <li>ultramonkey</li>
+                </ul>
+            </ul>
+
+					  <aside class="notes">
+              dlouho jsem nechapal jak udelat HA, az kdyz jsem se dozvedel ze existuje neco jako virtual ip
+              existuji appky ktere prehazuji virt ip mezi aktivnim a neaktivnim nodem
+              my pouzivame F5 od F5 Networks
+					  </aside>
+					</section>
+					<section>
+					  <img data-src="img/mesos-marathon_cloud.png" alt="orchestration tag cloud">
+					</section>
+				</section>
+
+				<section>
+					<h2>demo time</h2>
+          <ul>
+              <li>new application via gui</li>
+              <li>DNS API</li>
+          </ul>
+				</section>
+
+				<section>
+					<h2>deployer</h2>
+          <p>
+            <a href="https://hub.docker.com/r/avastsoftware/marathon-deployer">marathon-deployer</a> 
+            <pre>
+              <code data-trim data-noescape>
+docker run \
+  -v $PWD/marathon.json:/marathon.json \
+  -e MARATHON_URL=marathon.whale.int.avast.com \
+  -e MARATHON_APPLICATION_NAME = /test/application \
+  avastsoftware/marathon-deployer
+              </code>
+            </pre>
+          </p>
+				</section>
+
+				<section>
+					<h2>Known problems</h2>
+          <ul>
+              <li>logging</li>
+              <li>no-HTTP applicatins</li>
+              <li>monitoring</li>
+          </ul>
+				</section>
+
+				<section>
+					<h2>Questions?</h2>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
