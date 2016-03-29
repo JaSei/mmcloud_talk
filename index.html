@@ -45,6 +45,14 @@
           <p>
             <small>Jan Seidl &lt;seidl@avast.com&gt;, VirusLab Systems</small>
           </p>
+
+          <aside class="notes">
+            <ul>
+              <li>predstavit se</li>
+              <li>v 1minute popsat co delame</li>
+              <li>vysvetlit, ze budu mluvit o sobe, ale je to zasluha vsech lidi z teamu = zasluhu timto prebiram na sebe</li>
+            </ul>
+          </aside>
         </section>
 
         <section>
@@ -52,6 +60,7 @@
 
           <aside class="notes">
             <ul>
+              <li>poprve pred 1 a 3/4 rokem</li>
               <li>jak jsem docker nechtel</li>
               <li>proc se mi zalibil (pinto)</li>
               <li>jenze, pak jsem zacal chtit nejaky cloud do ktere ho to dam</li>
@@ -62,20 +71,27 @@
         <section>
           <section>
             <h2>Cloud?</h2>
+
+            <aside class="notes">
+              <ul>
+                <li>externi sluzby jsem neanalyzoval, protoze to u nas nefrcelo a protoze mame velky prenos dat az Terabyty denne</li>
+                <li>nejdriv jsem dlouho zkoumal openstack - moloch, to fakt neni to co potrebujeme</li>
+              </ul>
+            </aside>
           </section>
           <section>
             <h2>Cloud of docker tooling</h2>
-            <img data-src="img/tag_cloud.png" alt="tag cloud">
+            <img data-src="img/tag_cloud.png" alt="tag cloud" style="height:500px">
             <aside class="notes">
               generovano z hvezdicek na githubu
               pomoci http://amueller.github.io/word_cloud
-
+              <br />
               vsechny projekty (na githubu) ktere clovek najde, kdyz hleda tooling okolo dockeru
             </aside>
           </section>
           <section>
             <h2>Cloud of docker orchestration tooling</h2>
-            <img data-src="img/tag_cloud_orchestr.png" alt="orchestration tag cloud">
+            <img data-src="img/tag_cloud_orchestr.png" alt="orchestration tag cloud" style="height:500px">
             <aside class="notes">
               vsechny projekty (na githubu) ktere clovek najde, kdyz hleda orchestracni tooling okolo dockeru
             </aside>
@@ -83,15 +99,15 @@
           <section>
             <h2>Cloud?</h2>
             <p>
-              mesos-marathon / kubernetes (beta) / helios
+              swarm / helios / kubernetes (beta) / mesos-marathon
             </p>
 
             <aside class="notes">
               <ul>
-                <li>kubernetes - v bete, nedoporucovali na produkci</li>
-                <li>mesos byl stable, ale marathon byl takovy nedotazeny - GUIcko neumelo prakticky nic, ale API fajn</li>
                 <li>swarm byl jen ve zminkach</li>
                 <li>helios byl slozity (ale mocny), doporucovali jen kdyz si clovek nevystavi s ostatnimi</li>
+                <li>kubernetes - v bete, nedoporucovali na produkci</li>
+                <li>mesos byl stable, ale marathon byl takovy nedotazeny - GUIcko neumelo prakticky nic, ale API fajn</li>
               </ul>
             </aside>
           </section>
@@ -99,13 +115,16 @@
 
         <section>
           <h2>Mesos-Marathon cloud</h2>
+
+          <aside class="notes">
+            vyvestlit co je mesos a co marathon, jak do toho zapada zookeeper
+          </aside>
         </section>
 
         <section>
           <section>
             <h2>mmcloud v1</h2>
             <p>
-              <small>1+2 (2nody)</small>
               <ul>
                 <li>mesos</li>
                 <li>marathon</li>
@@ -117,20 +136,30 @@
 
             <aside class="notes">
               haproxy-bridge v cronu, kazdou minutu
-              + tcp
-              - pooling kazdou minutu
-              - pristup pres porty, ktere jsou automaticky prirazeny, nebo se priradi rucne 
             </aside>
           </section>
           <section>
+              <h3>service discovery</h3>
+              <small>how to find application in cluster</small>
+              <p>
+                node*:servicePort<br />
+                ↓<br /> 
+                nodeX:hostPort<br />
+                ↓<br />
+                ( docker:containerPort )
+              </p>
+          </section>
+          <section>
             <ul>
-              <h4>plus</h4>
+              <h4>pluses</h4>
               <ul>
+                <li>simple architecture</li>
                 <li>tcp/udp applications</li>
               </ul>
-              <h4>minus</h4>
+							<br />
+              <h4>minuses</h4>
               <ul>
-                <li>pooling</li>
+                <li>polling</li>
                 <li>adressing via ports</li>
               </ul>
             </ul>
@@ -141,16 +170,15 @@
           <section>
             <h2>mmcloud v2</h2>
             <p>
-              <small>1+3 (3nody)</small>
               <ul>
                 <li>mesos</li>
                 <li>marathon</li>
                 <li>(zookeeper)</li>
-                <li>consul</li>
-                <li>consul-template</li>
-                <li>web-proxy (lighttpd)</li>
-                <li>bind</li>
-                <li>registrator</li>
+                <li style="color:green">consul</li>
+                <li style="color:green">consul-template</li>
+                <li style="color:green">web-proxy (lighttpd)</li>
+                <li style="color:green">bind</li>
+                <li style="color:green">registrator</li>
               </ul>
             </p>
 
@@ -158,22 +186,36 @@
               consul - service discovery
               consul-template generuje konfiguraci web-proxy pri zmene v consulu
               web-proxy dela reverse proxy k HTTP aplikacim
-              bind pro zpropagovani consul DNS API
+              bind pro zpropagovani consul DNS API (ZONA)
               registrator populuje consul
             </aside>
           </section>
           <section>
+              <h3>service discovery</h3>
+              <small>how to find application in cluster</small>
+              <p>
+                HTTP GET application.cloud.domain<br />
+                ↓<br /> 
+                MASTER: reverse web proxy<br />
+                ↓<br />
+                hostX:hostPort<br />
+                ↓<br />
+                ( docker:containerPort )
+              </p>
+          </section>
+          <section>
             <ul>
-              <h4>plus</h4>
+              <h4>pluses</h4>
               <ul>
-                <li>immediately propagation</li>
+                <li>immediate propagation (consul-template)</li>
                 <li>HTTP/DNS API for service discovery</li>
               </ul>
-              <h4>minus</h4>
+							<br />
+              <h4>minuses</h4>
               <ul>
+                <li>only HTTP applications</li>
                 <li>registrator must be installed on each node</li>
-                <li>registrator use docker name (collision with mesos/marathon id)</li>
-                <li>only HTTP application</li>
+                <li>registrator uses docker name (collision with mesos/marathon id)</li>
               </ul>
             </ul>
           </section>
@@ -183,7 +225,7 @@
           <section>
             <h2>mmcloud v3 (current)</h2>
             <p>
-              <small>3+5 (5nody), HA</small>
+              <small>HA</small>
               <ul>
                 <li>mesos</li>
                 <li>marathon</li>
@@ -192,42 +234,43 @@
                 <li>consul-template</li>
                 <li>web-proxy (lighttpd)</li>
                 <li>bind</li>
-                <li>mesos-marathon bridge</li>
-                <li>logstash</li>
+                <li style="color:green">mesos-marathon bridge</li>
+                <li style="color:green">logstash</li>
               </ul>
             </p>
           </section>
           <section>
             <ul>
-              <h4>plus</h4>
+              <h4>pluses</h4>
               <ul>
-                <li>immediately propagation</li>
+                <li>immediate propagation</li>
                 <li>HTTP/DNS API for service discovery</li>
-                <li>name is name of mesos/marathon id</li>
-                <li>one instance of mesos-marathon bridge in cloud</li>
+                <li style="color:green">name is name of mesos/marathon id</li>
+                <li style="color:green">one instance of mesos-marathon bridge in cloud</li>
               </ul>
-              <h4>minus</h4>
+              <br />
+              <h4>minuses</h4>
               <ul>
-                <li>only HTTP application</li>
-                <li>multiport application problem</li>
+                <li>only HTTP applications</li>
+                <li style="color:red">multiport application problem</li>
               </ul>
             </ul>
           </section>
           <section>
             <h3>HA</h3>
             <ul>
-                VRRP
+                virtual IP + VRRP
                 <ul>
                     <li>keepalived</li>
                     <li>piranha (RedHat)</li>
                     <li>ultramonkey</li>
+                    <li>DCOS?</li>
                 </ul>
             </ul>
 
             <aside class="notes">
-              VRRP - virutal router redundancy protocol
-              dlouho jsem nechapal jak udelat HA, az kdyz jsem se dozvedel ze existuje neco jako virtual ip
-              existuji appky ktere prehazuji virt ip mezi aktivnim a neaktivnim nodem
+              dlouho jsem nechapal jak udelat HA, az kdyz jsem se dozvedel ze existuje neco jako virtual ip<br/>
+              VRRP - virutal router redundancy protocol<br />
               my pouzivame F5 od F5 Networks
             </aside>
           </section>
@@ -242,18 +285,53 @@
             <li>new application via gui</li>
             <li>DNS API</li>
           </ul>
+
+          <aside class="notes">
+            https://hub.docker.com/r/jenkinsci/jenkins/tags/
+          </aside>
+        </section>
+
+        <section>
+          <h2>marathon.json</h2>
+          <p>
+            <pre>
+              <code data-trim data-noescape>
+{
+  "id": "/test/jenkins2",
+  "instances": 1,
+  "cpus": 1,
+  "mem": 1024,
+  "container": {
+    "docker": {
+      "type": "DOCKER",
+      "image": "jenkinsci/jenkins:2.0-beta-1",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": 0
+        }
+      ]
+		}
+	}
+}
+              </code>
+            </pre>
+          </p>
         </section>
 
         <section>
           <h2>deployer</h2>
           <p>
-            <a href="https://hub.docker.com/r/avastsoftware/marathon-deployer">marathon-deployer</a> 
+            <a href="https://hub.docker.com/r/avastsoftware/marathon-deployer">https://hub.docker.com/r/avastsoftware/marathon-deployer</a> 
             <pre>
               <code data-trim data-noescape>
 docker run \
   -v $PWD/marathon.json:/marathon.json \
   -e MARATHON_URL=marathon.whale.int.avast.com \
-  -e MARATHON_APPLICATION_NAME = /test/application \
+  -e MARATHON_APPLICATION_NAME=/test/application \
   avastsoftware/marathon-deployer
               </code>
             </pre>
@@ -264,10 +342,14 @@ docker run \
           <h2>Known problems</h2>
           <ul>
               <li>logging</li>
-              <li>no-HTTP applicatins</li>
+              <li>no-HTTP applications</li>
               <li>monitoring</li>
               <li>authentication</li>
           </ul>
+
+          <aside class="notes">
+            authentication - DCOS
+          </aside>
         </section>
 
         <section>
